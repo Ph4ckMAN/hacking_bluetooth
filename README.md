@@ -274,8 +274,12 @@ connect <MAC_bluetooth>
 
 Ensuite, on lance donc la commande avec comme option notre numéro de téléphone.  
 Sur le téléphone piraté on peut voir qu'il envoie un message : 
-![msg_hacker_phone](https://github.com/user-attachments/assets/0507b5e2-e6d2-42ff-84c8-42da3cc7fa80)
+
+![msg_target_phone](https://github.com/user-attachments/assets/1419ac06-3cb3-42e0-9b35-1525841cb32c)
 
 Et sur le téléphone du hacker :
-![msg_target_phone](https://github.com/user-attachments/assets/1419ac06-3cb3-42e0-9b35-1525841cb32c)
+
+![msg_hacker_phone](https://github.com/user-attachments/assets/0507b5e2-e6d2-42ff-84c8-42da3cc7fa80)
+
+
  
